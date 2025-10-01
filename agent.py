@@ -21,34 +21,45 @@ class Agent:
             return {"text": text}
 
         if "distribui" in q or "histograma" in q:
-            figs = []
-            for col in self.numeric_cols[:6]:  # limita para não explodir a tela
-                figs.append(hist_plot(self.df, col))
-            text = "Distribuição (histogramas) das variáveis numéricas principais."
-            self.memory.add_interaction(question, text)
-            return {"text": text, "fig": figs[0]}  # mostra o primeiro, mas poderia iterar
+            if self.numeric_cols:
+                figs = []
+                for col in self.numeric_cols[:6]:
+                    figs.append(hist_plot(self.df, col))
+                text = "Distribuição (histogramas) das variáveis numéricas principais."
+                self.memory.add_interaction(question, text)
+                return {"text": text, "fig": figs[0]}
+            else:
+                return {"text": "⚠️ Não há colunas numéricas para gerar histogramas."}
 
         if "intervalo" in q or "mínimo" in q or "máximo" in q:
-            stats = self.df[self.numeric_cols].agg(['min','max']).T
-            text = "Intervalos (mínimo e máximo) das variáveis numéricas."
-            self.memory.add_interaction(question, text)
-            return {"text": text, "table": stats}
+            if self.numeric_cols:
+                stats = self.df[self.numeric_cols].agg(['min','max']).T
+                text = "Intervalos (mínimo e máximo) das variáveis numéricas."
+                self.memory.add_interaction(question, text)
+                return {"text": text, "table": stats}
+            else:
+                return {"text": "⚠️ Não há colunas numéricas para calcular intervalos."}
 
         if "média" in q or "mediana" in q or "tendência central" in q:
-            stats = self.df[self.numeric_cols].agg(['mean','median']).T
-            text = "Médias e medianas das variáveis numéricas."
-            self.memory.add_interaction(question, text)
-            return {"text": text, "table": stats}
+            if self.numeric_cols:
+                stats = self.df[self.numeric_cols].agg(['mean','median']).T
+                text = "Médias e medianas das variáveis numéricas."
+                self.memory.add_interaction(question, text)
+                return {"text": text, "table": stats}
+            else:
+                return {"text": "⚠️ Não há colunas numéricas para calcular média/mediana."}
 
         if "variabilidade" in q or "desvio padrão" in q or "variância" in q:
-            stats = self.df[self.numeric_cols].agg(['std','var']).T
-            text = "Medidas de variabilidade (desvio padrão e variância)."
-            self.memory.add_interaction(question, text)
-            return {"text": text, "table": stats}
+            if self.numeric_cols:
+                stats = self.df[self.numeric_cols].agg(['std','var']).T
+                text = "Medidas de variabilidade (desvio padrão e variância)."
+                self.memory.add_interaction(question, text)
+                return {"text": text, "table": stats}
+            else:
+                return {"text": "⚠️ Não há colunas numéricas para calcular variabilidade."}
 
         # --- 2) Padrões e Tendências ---
         if "tendência" in q or "temporal" in q:
-            # tenta detectar colunas de tempo
             time_cols = [c for c in self.df.columns if "time" in c.lower() or "date" in c.lower()]
             if time_cols:
                 col = time_cols[0]
@@ -65,12 +76,15 @@ class Agent:
                 return {"text": text}
 
         if "frequente" in q or "menos frequente" in q or "moda" in q:
-            freq = {}
-            for col in self.categorical_cols[:5]:
-                freq[col] = self.df[col].value_counts().head(5).to_dict()
-            text = "Valores mais frequentes por variável categórica."
-            self.memory.add_interaction(question, text)
-            return {"text": text, "table": pd.DataFrame(freq)}
+            if self.categorical_cols:
+                freq = {}
+                for col in self.categorical_cols[:5]:
+                    freq[col] = self.df[col].value_counts().head(5).to_dict()
+                text = "Valores mais frequentes por variável categórica."
+                self.memory.add_interaction(question, text)
+                return {"text": text, "table": pd.DataFrame(freq)}
+            else:
+                return {"text": "⚠️ Não há colunas categóricas para calcular frequências."}
 
         if "cluster" in q or "agrup" in q:
             if len(self.numeric_cols) >= 2:
@@ -81,21 +95,27 @@ class Agent:
                 self.memory.add_interaction(question, text)
                 return {"text": text, "table": df2["_cluster"].value_counts().reset_index().rename(columns={'index':'cluster','_cluster':'count'})}
             else:
-                return {"text":"Poucas colunas numéricas para aplicar clusters."}
+                return {"text":"⚠️ Poucas colunas numéricas para aplicar clusters."}
 
         # --- 3) Detecção de Outliers ---
         if "outlier" in q or "atípico" in q or "anomalia" in q:
-            out = detect_outliers_isolationforest(self.df, self.numeric_cols)
-            text = f"Foram detectados {len(out)} outliers usando IsolationForest."
-            self.memory.add_interaction(question, text)
-            return {"text": text, "table": out.head(50)}
+            if self.numeric_cols:
+                out = detect_outliers_isolationforest(self.df, self.numeric_cols)
+                text = f"Foram detectados {len(out)} outliers usando IsolationForest."
+                self.memory.add_interaction(question, text)
+                return {"text": text, "table": out.head(50)}
+            else:
+                return {"text":"⚠️ Não há colunas numéricas para detectar outliers."}
 
         # --- 4) Relações entre Variáveis ---
         if "correlação" in q or "relacion" in q:
-            corr = corr_matrix(self.df)
-            text = "Matriz de correlação entre variáveis numéricas."
-            self.memory.add_interaction(question, text)
-            return {"text": text, "table": corr}
+            if len(self.numeric_cols) >= 2:
+                corr = corr_matrix(self.df)
+                text = "Matriz de correlação entre variáveis numéricas."
+                self.memory.add_interaction(question, text)
+                return {"text": text, "table": corr}
+            else:
+                return {"text":"⚠️ Não há colunas numéricas suficientes para calcular correlação."}
 
         if "dispersão" in q or "scatter" in q:
             if len(self.numeric_cols) >= 2:
@@ -107,7 +127,7 @@ class Agent:
                 self.memory.add_interaction(question, text)
                 return {"text": text, "fig": fig}
             else:
-                return {"text":"Não há colunas numéricas suficientes para scatter plot."}
+                return {"text":"⚠️ Não há colunas numéricas suficientes para scatter plot."}
 
         # --- fallback ---
         text = "Não reconheci a pergunta. Tente sobre: tipos de dados, distribuições, médias, variância, tendências, frequências, clusters, outliers, correlação."
