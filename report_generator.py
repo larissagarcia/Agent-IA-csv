@@ -15,5 +15,9 @@ def generate_pdf_report(memory, output_path="/content/project/Agentes_Autonomos_
         pdf.multi_cell(0,6, f"Pergunta: {q}")
         pdf.multi_cell(0,6, f"Resposta (resumo): {a}")
         pdf.ln(2)
-    pdf.output(output_path)
+   import os
+    # garante que salva no diretório atual da aplicação
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    pdf.output(os.path.basename(output_path))
+    
     return output_path
