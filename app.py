@@ -34,18 +34,22 @@ mem = Memory("/content/project/memory.sqlite")
 agent = Agent(df, mem)
 
 q = st.text_input("Pergunta sobre o dataset (ex.: 'Mostre histograma da coluna Amount')")
-if st.button("Enviar pergunta"):
-    if not q.strip():
-        st.warning("Digite uma pergunta.")
-    else:
-        with st.spinner("Processando..."):
-            resp = agent.handle_question(q)
-        st.markdown("### Resposta do agente")
-        st.write(resp.get("text"))
-        if "table" in resp:
-            st.dataframe(resp["table"])
-        if "fig" in resp:
-            st.pyplot(resp["fig"])
+if question:
+    with st.spinner("Analisando..."):
+        result = agent.handle_question(question)
+
+    st.markdown(f"### 💡 Resposta")
+    st.write(result.get("text", ""))
+
+    # Se houver tabela
+    if "table" in result:
+        st.dataframe(result["table"])
+
+    # Se houver figura (gráfico)
+    if "fig" in result:
+        st.pyplot(result["fig"])
+
+    st.success("Análise concluída!")
 
 if st.button("Gerar relatório PDF"):
     pdf_path = generate_pdf_report(mem, output_path="Agentes_Autonomos_Relatorio.pdf")
