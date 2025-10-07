@@ -15,8 +15,11 @@ if not os.getenv("OPENAI_API_KEY"):
 
 os.environ["AGENT_MODE"] = "rule"
 
-st.set_page_config(page_title="Agente EDA (Colab)", layout="wide")
-st.title("Agente E.D.A. — Colab")
+import streamlit as st
+
+st.set_page_config(page_title="Agente de Análise Inteligente", layout="wide")
+st.title("🤖 Agente Inteligente de Exploração de Dados (EDA)")
+st.markdown("Faça upload de um arquivo CSV e faça perguntas em linguagem natural sobre os dados.")
 
 uploaded = st.file_uploader("Carregue um CSV", type=["csv","zip"])
 if uploaded is None:
