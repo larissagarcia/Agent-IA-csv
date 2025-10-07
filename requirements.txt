@@ -4,4 +4,4 @@ numpy
 matplotlib
 scikit-learn
 fpdf
-openai
+openai==0.28
