@@ -3,6 +3,9 @@ import pandas as pd
 from memory import Memory
 from agent import Agent
 from report_generator import generate_pdf_report
+import os
+os.environ.setdefault("AGENT_MODE", "llm")  # ativa modo inteligente automaticamente
+
 
 st.set_page_config(page_title="Agente EDA (Colab)", layout="wide")
 st.title("Agente E.D.A. — Colab")
