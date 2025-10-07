@@ -37,6 +37,6 @@ if st.button("Enviar pergunta"):
             st.pyplot(resp["fig"])
 
 if st.button("Gerar relatório PDF"):
-    pdf_path = generate_pdf_report(mem, output_path="/content/project/Agentes_Autonomos_Relatorio.pdf")
+    pdf_path = generate_pdf_report(mem, output_path="Agentes_Autonomos_Relatorio.pdf")
     with open(pdf_path, "rb") as f:
         st.download_button("Download Relatório PDF", f, file_name="Agentes_Autonomos_Relatorio.pdf")
