@@ -21,10 +21,13 @@ st.set_page_config(page_title="Agente de Análise Inteligente", layout="wide")
 st.title("🤖 Agente Inteligente de Exploração de Dados (EDA)")
 st.markdown("Faça upload de um arquivo CSV e faça perguntas em linguagem natural sobre os dados.")
 
-uploaded = st.file_uploader("Carregue um CSV", type=["csv","zip"])
-if uploaded is None:
-    st.info("Envie um CSV para começar (ex.: creditcardfraud.csv).")
-    st.stop()
+uploaded_file = st.file_uploader("📂 Envie um arquivo CSV", type=["csv"])
+
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
+    st.dataframe(df.head())
+else:
+    st.info("Envie um CSV para iniciar a análise.")
 
 # lê CSV
 import io
