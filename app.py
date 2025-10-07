@@ -57,7 +57,7 @@ if question:
 
     st.success("Análise concluída!")
 
-if st.button("Gerar relatório PDF"):
-    pdf_path = generate_pdf_report(mem, output_path="Agentes_Autonomos_Relatorio.pdf")
+if st.button("📑 Gerar Relatório PDF"):
+    pdf_path = generate_pdf_report(mem, output_path="Relatorio_Agente_IA.pdf")
     with open(pdf_path, "rb") as f:
-        st.download_button("Download Relatório PDF", f, file_name="Agentes_Autonomos_Relatorio.pdf")
+        st.download_button("Baixar Relatório", f, file_name="Relatorio_Agente_IA.pdf")
