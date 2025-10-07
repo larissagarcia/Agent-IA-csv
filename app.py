@@ -5,16 +5,18 @@ from agent import Agent
 from report_generator import generate_pdf_report
 import os
 
-# --- Configuração do modo e da chave ---
+# --- Configuração ---
 os.environ.setdefault("AGENT_MODE", "llm")
+
+# Solicita chave OpenAI se não estiver definida (no Cloud use Secrets)
 if not os.getenv("OPENAI_API_KEY"):
     from getpass import getpass
     os.environ["OPENAI_API_KEY"] = getpass("Digite sua chave OpenAI: ")
 
-# --- Interface Streamlit ---
-st.set_page_config(page_title="Agente de Análise Inteligente", layout="wide")
+# --- Interface ---
+st.set_page_config(page_title="Agente Inteligente de Exploração de Dados", layout="wide")
 st.title("🤖 Agente Inteligente de Exploração de Dados (EDA)")
-st.markdown("Faça upload de um arquivo CSV e faça perguntas em linguagem natural sobre os dados.")
+st.markdown("Envie um arquivo CSV e faça perguntas em linguagem natural sobre os dados.")
 
 uploaded_file = st.file_uploader("📂 Envie um arquivo CSV", type=["csv"])
 
@@ -23,12 +25,10 @@ if uploaded_file is not None:
     st.write(f"**Linhas:** {df.shape[0]} — **Colunas:** {df.shape[1]}")
     st.dataframe(df.head())
 
-    # Inicializa memória e agente
     mem = Memory("memory.sqlite")
     agent = Agent(df, mem)
 
-    # Caixa de pergunta
-    q = st.text_input("Pergunta sobre o dataset (ex.: 'Mostre histograma da coluna Amount')")
+    q = st.text_input("💬 Pergunta sobre o dataset (ex.: 'Quais variáveis são mais correlacionadas?')")
     if q:
         with st.spinner("Analisando..."):
             result = agent.handle_question(q)
@@ -43,7 +43,6 @@ if uploaded_file is not None:
 
         st.success("✅ Análise concluída!")
 
-    # Botão de relatório
     if st.button("📑 Gerar Relatório PDF"):
         pdf_path = generate_pdf_report(mem, output_path="Relatorio_Agente_IA.pdf")
         with open(pdf_path, "rb") as f:
