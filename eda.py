@@ -3,21 +3,19 @@ import matplotlib.pyplot as plt
 from sklearn.ensemble import IsolationForest
 
 def summary_stats(df):
-    return df.describe(include='all', datetime_is_numeric=True).T
+    return df.describe().T
 
-def hist_plot(df, column, bins=50):
+def hist_plot(df, column):
     fig, ax = plt.subplots()
-    df[column].dropna().hist(bins=bins, ax=ax)
-    ax.set_title(f"Histograma: {column}")
+    df[column].hist(ax=ax, bins=20, edgecolor='black')
+    ax.set_title(f'Distribuição de {column}')
     return fig
 
 def corr_matrix(df):
-    return df.corr()
+    return df.corr(numeric_only=True)
 
-def detect_outliers_isolationforest(df, numeric_cols, contamination=0.01):
-    if not numeric_cols:
-        return df.iloc[0:0]
-    model = IsolationForest(contamination=contamination, random_state=42)
-    X = df[numeric_cols].fillna(0)
-    preds = model.fit_predict(X)
-    return df[preds == -1]
+def detect_outliers_isolationforest(df, numeric_cols):
+    iso = IsolationForest(contamination=0.05, random_state=42)
+    outliers = df[numeric_cols].copy()
+    outliers['outlier'] = iso.fit_predict(outliers)
+    return df[outliers['outlier'] == -1]
