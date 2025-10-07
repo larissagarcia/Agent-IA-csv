@@ -4,10 +4,16 @@ from memory import Memory
 from agent import Agent
 from report_generator import generate_pdf_report
 import os
-os.environ.setdefault("AGENT_MODE", "llm")  # ativa modo inteligente automaticamente
+
+# Ativa o modo LLM (inteligente)
+os.environ.setdefault("AGENT_MODE", "llm")
+
+# Configure a chave de API (no Colab use getpass(), no Cloud use secrets)
+if not os.getenv("OPENAI_API_KEY"):
+    from getpass import getpass
+    os.environ["OPENAI_API_KEY"] = getpass("Digite sua chave OpenAI: ")
+
 os.environ["AGENT_MODE"] = "rule"
-
-
 
 st.set_page_config(page_title="Agente EDA (Colab)", layout="wide")
 st.title("Agente E.D.A. — Colab")
